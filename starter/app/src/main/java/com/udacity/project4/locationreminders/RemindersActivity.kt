@@ -34,6 +34,7 @@ import org.koin.core.qualifier.named
  * The RemindersActivity that holds the reminders fragments
  */
 class RemindersActivity : AppCompatActivity() {
+    private var callback: Pair<Int, Runnable>? = null
     private val LOCATION_PERMISSION_INDEX = 0
     private val REQUEST_TURN_DEVICE_LOCATION_ON = 29
     private val BACKGROUND_LOCATION_PERMISSION_INDEX = 1
@@ -51,7 +52,7 @@ class RemindersActivity : AppCompatActivity() {
     private val snackBar by lazy {
         Snackbar.make(
             binding.root,
-            "text", Snackbar.LENGTH_INDEFINITE
+            "text", Snackbar.LENGTH_LONG
         )
     }
 
@@ -100,7 +101,10 @@ class RemindersActivity : AppCompatActivity() {
     *  Requests ACCESS_FINE_LOCATION and (on Android 10+ (Q) ACCESS_BACKGROUND_LOCATION.
     */
     @TargetApi(29)
-    fun requestForegroundAndBackgroundLocationPermissions(foregroundOnly: Boolean = false) {
+    fun requestForegroundAndBackgroundLocationPermissions(
+        foregroundOnly: Boolean = false,
+        callback: Runnable? = null
+    ) {
         if (foregroundAndBackgroundLocationPermissionApproved())
             return
 
@@ -118,6 +122,8 @@ class RemindersActivity : AppCompatActivity() {
         }
 
         Log.d(TAG, "Request foreground only location permission")
+        if (callback != null)
+            this.callback = Pair(resultCode, callback)
         ActivityCompat.requestPermissions(
             this,
             permissionsArray,
@@ -236,6 +242,14 @@ class RemindersActivity : AppCompatActivity() {
                     })
                 }.show()
         } else {
+            val pairBack = callback
+            if (pairBack != null) {
+                if (pairBack.first == requestCode) {
+                    pairBack.second.run()
+                }
+                callback = null
+
+            }
             //you have Permission
         }
     }

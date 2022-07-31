@@ -126,7 +126,12 @@ class MapsFragment : BaseFragment() {
     }
 
     private fun requestPermission() {
-        (activity as? RemindersActivity)?.requestForegroundAndBackgroundLocationPermissions()
+        (activity as? RemindersActivity)?.requestForegroundAndBackgroundLocationPermissions(
+            foregroundOnly = true
+        ) {
+            if (isPermissionGranted())
+                initMap()
+        }
     }
 
     override fun onRequestPermissionsResult(
