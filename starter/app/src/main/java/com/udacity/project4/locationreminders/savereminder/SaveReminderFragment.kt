@@ -39,11 +39,6 @@ class SaveReminderFragment : BaseFragment() {
         binding.lifecycleOwner = this
         binding.selectLocation.setOnClickListener {
             //            Navigate to another fragment to get the user location
-            if (!(activity as RemindersActivity).checkOnForegroundLocation()) {
-                (activity as RemindersActivity).requestForegroundAndBackgroundLocationPermissions(
-                    true
-                )
-            }
             _viewModel.navigationCommand.value =
                 NavigationCommand.To(SaveReminderFragmentDirections.actionSaveReminderFragmentToMapsFragment())
             (activity as RemindersActivity).hideSnackBar()
@@ -83,6 +78,7 @@ class SaveReminderFragment : BaseFragment() {
 
     override fun onDestroy() {
         super.onDestroy()
+
         //make sure to clear the view model after destroy, as it's a single view model.
         _viewModel.onClear()
     }
