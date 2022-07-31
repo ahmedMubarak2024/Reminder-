@@ -14,7 +14,7 @@ abstract class BaseFragment : Fragment() {
      * Every fragment has to have an instance of a view model that extends from the BaseViewModel
      */
     abstract val _viewModel: BaseViewModel
-
+    protected val TAG = this::class.java.simpleName
     override fun onStart() {
         super.onStart()
         _viewModel.showErrorMessage.observe(this, Observer {

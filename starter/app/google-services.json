@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "701108617515",
+    "project_id": "nano-dgreec4",
+    "storage_bucket": "nano-dgreec4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:701108617515:android:c60a88b0972ad7e344056e",
+        "android_client_info": {
+          "package_name": "com.udacity.project4"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "701108617515-5279gqjn8r7aqdvlqbu92v0bkfh1an49.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.udacity.project4",
+            "certificate_hash": "a142862be0b27560a4d707d8093fda613c53901b"
+          }
+        },
+        {
+          "client_id": "701108617515-d2qudf53ul0jo3bctlktu8530q65gu64.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEIJnJIZ9G9FzzWBZkyPY2XOM5d0GyhQo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "701108617515-d2qudf53ul0jo3bctlktu8530q65gu64.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

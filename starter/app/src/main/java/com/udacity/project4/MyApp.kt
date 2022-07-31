@@ -1,14 +1,19 @@
 package com.udacity.project4
 
 import android.app.Application
+import com.udacity.project4.locationreminders.LoginViewModel
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.local.LocalDB
 import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
 import com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
+import com.udacity.project4.utils.AppDispatchers
+import com.udacity.project4.utils.FirebaseUserLiveData
+import com.udacity.project4.utils.ProductionDispatchers
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 class MyApp : Application() {
@@ -27,6 +32,9 @@ class MyApp : Application() {
                     get() as ReminderDataSource
                 )
             }
+            viewModel {
+                LoginViewModel()
+            }
             //Declare singleton definitions to be later injected using by inject()
             single {
                 //This view model is declared singleton to be used across multiple fragments
@@ -35,8 +43,15 @@ class MyApp : Application() {
                     get() as ReminderDataSource
                 )
             }
-            single { RemindersLocalRepository(get()) as ReminderDataSource }
+            single { RemindersLocalRepository(get(), get(named("IO"))) as ReminderDataSource }
             single { LocalDB.createRemindersDao(this@MyApp) }
+            single { ProductionDispatchers() as AppDispatchers }
+            single(qualifier = named("IO")) { get<AppDispatchers>().IO }
+            single(qualifier = named("MAIN")) { get<AppDispatchers>().Main }
+
+            factory { FirebaseUserLiveData() }
+
+            single(named("isTesting")) { false }
         }
 
         startKoin {

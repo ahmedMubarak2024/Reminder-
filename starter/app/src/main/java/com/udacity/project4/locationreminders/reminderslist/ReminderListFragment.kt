@@ -1,21 +1,30 @@
 package com.udacity.project4.locationreminders.reminderslist
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.databinding.DataBindingUtil
 import com.udacity.project4.R
+import com.udacity.project4.authentication.AuthenticationActivity
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentRemindersBinding
+import com.udacity.project4.locationreminders.AuthenticationState
+import com.udacity.project4.locationreminders.LoginViewModel
+import com.udacity.project4.locationreminders.RemindersActivity
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import com.udacity.project4.utils.setTitle
 import com.udacity.project4.utils.setup
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ReminderListFragment : BaseFragment() {
+    private var menu: Menu? = null
+
     //use Koin to retrieve the ViewModel instance
     override val _viewModel: RemindersListViewModel by viewModel()
     private lateinit var binding: FragmentRemindersBinding
+    private val loginViewModel by viewModel<LoginViewModel>()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -32,7 +41,7 @@ class ReminderListFragment : BaseFragment() {
         setTitle(getString(R.string.app_name))
 
         binding.refreshLayout.setOnRefreshListener { _viewModel.loadReminders() }
-
+        binding.refreshLayout.isRefreshing
         return binding.root
     }
 
@@ -41,7 +50,29 @@ class ReminderListFragment : BaseFragment() {
         binding.lifecycleOwner = this
         setupRecyclerView()
         binding.addReminderFAB.setOnClickListener {
-            navigateToAddReminder()
+            Log.i(TAG, "onViewCreated: " + loginViewModel.authenticationState.value)
+            (activity as? RemindersActivity)?.apply {
+                if (loginViewModel.authenticationState.value == AuthenticationState.AUTHENTICATED)
+                    navigateToAddReminder()
+                else if (loginViewModel.authenticationState.value == AuthenticationState.UNAUTHENTICATED)
+                    goToLogin("addReminder")
+
+            }
+        }
+        loginViewModel.authenticationState.observe(this.viewLifecycleOwner) {
+            updateMenu(it)
+
+        }
+    }
+
+    private fun updateMenu(it: AuthenticationState?) {
+        if (it == AuthenticationState.AUTHENTICATED) {
+            menu?.findItem(R.id.logout)?.setTitle("LogOut")
+        } else {
+            (activity as RemindersActivity).removeGeoFence()
+            _viewModel.clearReminders()
+            _viewModel.loadReminders()
+            menu?.findItem(R.id.logout)?.setTitle("Login")
         }
     }
 
@@ -71,17 +102,29 @@ class ReminderListFragment : BaseFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.logout -> {
-//                TODO: add the logout implementation
+                if (loginViewModel.authenticationState.value == AuthenticationState.AUTHENTICATED) {
+                    loginViewModel.logOut()
+                } else {
+                    goToLogin()
+                }
             }
         }
         return super.onOptionsItemSelected(item)
 
     }
 
+    private fun goToLogin(s: String = "") {
+        startActivity(Intent(activity, AuthenticationActivity::class.java)
+            .apply { action = s })
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
+        this.menu = menu
+
 //        display logout as menu item
         inflater.inflate(R.menu.main_menu, menu)
+        updateMenu(loginViewModel.authenticationState.value)
     }
 
 }

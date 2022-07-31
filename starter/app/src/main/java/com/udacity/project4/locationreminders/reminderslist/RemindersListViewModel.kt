@@ -8,6 +8,8 @@ import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.dto.Result
 import kotlinx.coroutines.launch
+import org.koin.core.get
+import org.koin.core.qualifier.named
 
 class RemindersListViewModel(
     app: Application,
@@ -22,10 +24,10 @@ class RemindersListViewModel(
      */
     fun loadReminders() {
         showLoading.value = true
-        viewModelScope.launch {
+        viewModelScope.launch(context = get(named("MAIN"))) {
             //interacting with the dataSource has to be through a coroutine
             val result = dataSource.getReminders()
-            showLoading.postValue(false)
+
             when (result) {
                 is Result.Success<*> -> {
                     val dataList = ArrayList<ReminderDataItem>()
@@ -45,6 +47,7 @@ class RemindersListViewModel(
                 is Result.Error ->
                     showSnackBar.value = result.message
             }
+            showLoading.postValue(false)
 
             //check if no data has to be shown
             invalidateShowNoData()
@@ -56,5 +59,12 @@ class RemindersListViewModel(
      */
     private fun invalidateShowNoData() {
         showNoData.value = remindersList.value == null || remindersList.value!!.isEmpty()
+    }
+
+    fun clearReminders() {
+        viewModelScope.launch(context = get(named("MAIN"))) {
+            dataSource.deleteAllReminders()
+        }
+
     }
 }

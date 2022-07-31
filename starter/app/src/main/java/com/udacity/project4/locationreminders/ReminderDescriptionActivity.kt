@@ -32,6 +32,7 @@ class ReminderDescriptionActivity : AppCompatActivity() {
             this,
             R.layout.activity_reminder_description
         )
+        binding.reminderDataItem = intent.getParcelableExtra(EXTRA_ReminderDataItem)
 //        TODO: Add the implementation of the reminder details
     }
 }

@@ -11,6 +11,8 @@ import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import kotlinx.coroutines.launch
+import org.koin.core.get
+import org.koin.core.qualifier.named
 
 class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSource) :
     BaseViewModel(app) {
@@ -20,6 +22,7 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
     val selectedPOI = MutableLiveData<PointOfInterest>()
     val latitude = MutableLiveData<Double>()
     val longitude = MutableLiveData<Double>()
+
 
     /**
      * Clear the live data objects to start fresh next time the view model gets called
@@ -47,7 +50,7 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
      */
     fun saveReminder(reminderData: ReminderDataItem) {
         showLoading.value = true
-        viewModelScope.launch {
+        viewModelScope.launch(context = get(named("MAIN"))) {
             dataSource.saveReminder(
                 ReminderDTO(
                     reminderData.title,
@@ -64,6 +67,10 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
         }
     }
 
+    fun saveLocation() {
+        navigationCommand.value = NavigationCommand.Back
+    }
+
     /**
      * Validate the entered data and show error to the user if there's any invalid data
      */
@@ -77,6 +84,8 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
             showSnackBarInt.value = R.string.err_select_location
             return false
         }
+
         return true
     }
+
 }
